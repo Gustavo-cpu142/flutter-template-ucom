@@ -3,14 +3,20 @@ import 'package:get/get.dart';
 import 'package:finpay/controller/reserva_controller.dart';
 import 'package:finpay/model/sitema_reservas.dart';
 import 'package:finpay/utils/utiles.dart';
+import 'package:finpay/view/autos/registrar_auto_screen.dart';
+import 'package:finpay/controller/home_controller.dart';
 
 class ReservaScreen extends StatelessWidget {
   final controller = Get.put(ReservaController());
+  final homeController = Get.find<HomeController>();
 
   ReservaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Asegurarnos de que los contadores estén actualizados
+    homeController.actualizarEstadisticas();
+    
     return Scaffold(
       appBar: AppBar(title: const Text("Reservar lugar")),
       body: SingleChildScrollView(
@@ -22,20 +28,34 @@ class ReservaScreen extends StatelessWidget {
               children: [
                 const Text("Seleccionar auto",
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                Obx(() {
-                  return DropdownButton<Auto>(
-                    isExpanded: true,
-                    value: controller.autoSeleccionado.value,
-                    hint: const Text("Seleccionar auto"),
-                    onChanged: (auto) {
-                      controller.autoSeleccionado.value = auto;
-                    },
-                    items: controller.autosCliente.map((a) {
-                      final nombre = "${a.chapa} - ${a.marca} ${a.modelo}";
-                      return DropdownMenuItem(value: a, child: Text(nombre));
-                    }).toList(),
-                  );
-                }),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Obx(() {
+                        return DropdownButton<Auto>(
+                          isExpanded: true,
+                          value: controller.autoSeleccionado.value,
+                          hint: const Text("Seleccionar auto"),
+                          onChanged: (auto) {
+                            controller.autoSeleccionado.value = auto;
+                          },
+                          items: controller.autosCliente.map((a) {
+                            final nombre = "${a.chapa} - ${a.marca} ${a.modelo}";
+                            return DropdownMenuItem(value: a, child: Text(nombre));
+                          }).toList(),
+                        );
+                      }),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        Get.to(() => RegistrarAutoScreen());
+                      },
+                      icon: const Icon(Icons.add_circle_outline),
+                      tooltip: 'Registrar nuevo auto',
+                    ),
+                  ],
+                ),
                 const Text("Seleccionar piso",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 DropdownButton<Piso>(

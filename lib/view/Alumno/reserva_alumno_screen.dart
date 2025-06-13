@@ -450,79 +450,114 @@ class ReservaAlumnoScreen extends StatelessWidget {
   }
 
   Widget _buildLugaresGrid(Color primaryColor) {
-    return Container(
-      height: 250,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: GridView.count(
-        crossAxisCount: 5,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        children: controller.lugaresDisponibles
-            .where((l) => l.codigoPiso == controller.pisoSeleccionado.value?.codigo)
-            .map((lugar) {
-          final seleccionado = lugar == controller.lugarSeleccionado.value;
-          final color = lugar.estado == "RESERVADO"
-              ? Colors.red.shade300
-              : seleccionado
-                  ? primaryColor
-                  : Colors.grey.shade200;
+    return Obx(() {
+      if (controller.pisoSeleccionado.value == null) {
+        return Container(
+          height: 250,
+          alignment: Alignment.center,
+          child: const Text(
+            "Selecciona un piso primero",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+        );
+      }
 
-          return GestureDetector(
-            onTap: lugar.estado == "DISPONIBLE"
-                ? () => controller.lugarSeleccionado.value = lugar
-                : null,
-            child: Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: color,
-                border: Border.all(
-                  color: seleccionado ? primaryColor : Colors.black12,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: seleccionado
-                    ? [
-                        BoxShadow(
-                          color: primaryColor.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        )
-                      ]
-                    : null,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    lugar.codigoLugar,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: lugar.estado == "RESERVADO"
-                          ? Colors.white
-                          : Colors.black87,
-                    ),
+      final lugaresDelPiso = controller.lugaresDisponibles
+          .where((l) => l.codigoPiso == controller.pisoSeleccionado.value?.codigo)
+          .toList();
+
+      if (lugaresDelPiso.isEmpty) {
+        return Container(
+          height: 250,
+          alignment: Alignment.center,
+          child: const Text(
+            "No hay lugares disponibles en este piso",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+        );
+      }
+
+      return Container(
+        height: 250,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: GridView.count(
+          crossAxisCount: 5,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          children: lugaresDelPiso.map((lugar) {
+            final seleccionado = lugar == controller.lugarSeleccionado.value;
+            final color = lugar.estado == "RESERVADO"
+                ? Colors.red.shade300
+                : seleccionado
+                    ? primaryColor
+                    : Colors.grey.shade200;
+
+            return GestureDetector(
+              onTap: lugar.estado == "DISPONIBLE"
+                  ? () {
+                      controller.lugarSeleccionado.value = lugar;
+                      print("Lugar seleccionado: ${lugar.codigoLugar}");
+                    }
+                  : null,
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: color,
+                  border: Border.all(
+                    color: seleccionado ? primaryColor : Colors.black12,
+                    width: 2,
                   ),
-                  if (lugar.estado == "RESERVADO")
-                    const Text(
-                      "Ocupado",
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: seleccionado
+                      ? [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : null,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      lugar.codigoLugar,
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: lugar.estado == "RESERVADO"
+                            ? Colors.white
+                            : Colors.black87,
                       ),
                     ),
-                ],
+                    if (lugar.estado == "RESERVADO")
+                      const Text(
+                        "Ocupado",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   Widget _buildHorariosSelector(BuildContext context) {

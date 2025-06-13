@@ -1,1 +1,83 @@
-[]
+[
+  {
+    "codigoReserva": "RES001",
+    "horarioInicio": "2025-05-10T08:00:00",
+    "horarioSalida": "2025-05-10T18:00:00",
+    "monto": 80000,
+    "estadoReserva": "PAGADA",
+    "chapaAuto": "ABC123"
+  },
+  {
+    "codigoReserva": "RES002",
+    "horarioInicio": "2025-05-11T08:00:00",
+    "horarioSalida": "2025-05-11T18:00:00",
+    "monto": 100000,
+    "estadoReserva": "PAGADA",
+    "chapaAuto": "DEF456"
+  },
+  {
+    "codigoReserva": "RES003",
+    "horarioInicio": "2025-05-12T08:00:00",
+    "horarioSalida": "2025-05-12T18:00:00",
+    "monto": 60000,
+    "estadoReserva": "ACTIVA",
+    "chapaAuto": "GHI789"
+  },
+  {
+    "codigoReserva": "RES004",
+    "horarioInicio": "2025-05-13T08:00:00",
+    "horarioSalida": "2025-05-13T18:00:00",
+    "monto": 10000,
+    "estadoReserva": "ACTIVA",
+    "chapaAuto": "ABC123"
+  },
+  {
+    "codigoReserva": "RES005",
+    "horarioInicio": "2025-05-14T08:00:00",
+    "horarioSalida": "2025-05-14T18:00:00",
+    "monto": 20000,
+    "estadoReserva": "RESERVADA",
+    "chapaAuto": "DEF456"
+  },
+  {
+    "codigoReserva": "RES006",
+    "horarioInicio": "2025-05-15T08:00:00",
+    "horarioSalida": "2025-05-15T18:00:00",
+    "monto": 100000,
+    "estadoReserva": "RESERVADA",
+    "chapaAuto": "GHI789"
+  },
+  {
+    "codigoReserva": "RES007",
+    "horarioInicio": "2025-05-16T08:00:00",
+    "horarioSalida": "2025-05-16T18:00:00",
+    "monto": 40000,
+    "estadoReserva": "RESERVADA",
+    "chapaAuto": "ABC123"
+  },
+  {
+    "codigoReserva": "RES008",
+    "horarioInicio": "2025-05-17T08:00:00",
+    "horarioSalida": "2025-05-17T18:00:00",
+    "monto": 40000,
+    "estadoReserva": "RESERVADA",
+    "chapaAuto": "DEF456"
+  },
+  {
+    "codigoReserva": "RES009",
+    "horarioInicio": "2025-05-18T08:00:00",
+    "horarioSalida": "2025-05-18T18:00:00",
+    "monto": 100000,
+    "estadoReserva": "RESERVADA",
+    "chapaAuto": "GHI789"
+  },
+  {
+    "codigoReserva": "RES010",
+    "horarioInicio": "2025-05-19T08:00:00",
+    "horarioSalida": "2025-05-19T18:00:00",
+    "monto": 60000,
+    "estadoReserva": "RESERVADA",
+    "chapaAuto": "ABC123"
+  }
+]
+

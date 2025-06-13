@@ -120,7 +120,8 @@ class Reserva {
   DateTime horarioSalida;
   double monto;
   String estadoReserva;
-  String chapaAuto; // solo la chapa
+  String chapaAuto;
+  String marcaAuto;
 
   Reserva({
     required this.codigoReserva,
@@ -129,6 +130,7 @@ class Reserva {
     required this.monto,
     required this.estadoReserva,
     required this.chapaAuto,
+    required this.marcaAuto,
   });
 
   factory Reserva.fromJson(Map<String, dynamic> json) => Reserva(
@@ -137,7 +139,8 @@ class Reserva {
         horarioSalida: DateTime.parse(json['horarioSalida']),
         monto: json['monto'].toDouble(),
         estadoReserva: json['estadoReserva'],
-        chapaAuto: json['chapaAuto'] ?? '',
+        chapaAuto: json['chapaAuto'],
+        marcaAuto: json['marcaAuto'] ?? 'No especificada',
       );
 
   Map<String, dynamic> toJson() => {
@@ -147,6 +150,7 @@ class Reserva {
         'monto': monto,
         'estadoReserva': estadoReserva,
         'chapaAuto': chapaAuto,
+        'marcaAuto': marcaAuto,
       };
 }
 
@@ -155,12 +159,14 @@ class Pago {
   String codigoReservaAsociada;
   double montoPagado;
   DateTime fechaPago;
+  String estadoPago;
 
   Pago({
     required this.codigoPago,
     required this.codigoReservaAsociada,
     required this.montoPagado,
     required this.fechaPago,
+    this.estadoPago = "PENDIENTE",
   });
 
   factory Pago.fromJson(Map<String, dynamic> json) => Pago(
@@ -168,6 +174,7 @@ class Pago {
         codigoReservaAsociada: json['codigoReservaAsociada'],
         montoPagado: json['montoPagado'].toDouble(),
         fechaPago: DateTime.parse(json['fechaPago']),
+        estadoPago: json['estadoPago'] ?? "PENDIENTE",
       );
 
   Map<String, dynamic> toJson() => {
@@ -175,5 +182,6 @@ class Pago {
         'codigoReservaAsociada': codigoReservaAsociada,
         'montoPagado': montoPagado,
         'fechaPago': fechaPago.toIso8601String(),
+        'estadoPago': estadoPago,
       };
 }

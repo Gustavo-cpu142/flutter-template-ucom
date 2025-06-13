@@ -52,13 +52,27 @@ class ReservaAlumnoController extends GetxController {
     }).toList();
   }
 
-  Future<void> seleccionarPiso(Piso piso) {
+  Future<void> seleccionarPiso(Piso piso) async {
     pisoSeleccionado.value = piso;
     lugarSeleccionado.value = null;
 
-    // filtrar lugares de este piso
-    lugaresDisponibles.refresh();
-    return Future.value();
+    // Filtrar lugares disponibles para este piso
+    final todosLugares = await db.getAll("lugares.json");
+    final lugares = todosLugares.map((e) => Lugar.fromJson(e)).toList();
+    
+    // Obtener reservas activas
+    final reservas = await db.getAll("reservas.json");
+    final lugaresReservados = reservas
+        .where((r) => r['estadoReserva'] == "ACTIVA" || r['estadoReserva'] == "RESERVADA")
+        .map((r) => r['codigoLugar'])
+        .toSet();
+
+    // Filtrar lugares disponibles para este piso y que no estén reservados
+    lugaresDisponibles.value = lugares.where((l) {
+      return l.codigoPiso == piso.codigo && 
+             !lugaresReservados.contains(l.codigoLugar) &&
+             l.estado == "DISPONIBLE";
+    }).toList();
   }
 
   Future<bool> confirmarReserva() async {
@@ -66,17 +80,24 @@ class ReservaAlumnoController extends GetxController {
         lugarSeleccionado.value == null ||
         horarioInicio.value == null ||
         horarioSalida.value == null) {
+      print("Error: Campos incompletos");
       return false;
     }
 
     final duracionEnHoras =
         horarioSalida.value!.difference(horarioInicio.value!).inMinutes / 60;
 
-    if (duracionEnHoras <= 0) return false;
+    if (duracionEnHoras <= 0) {
+      print("Error: Duración inválida");
+      return false;
+    }
 
     final montoCalculado = (duracionEnHoras * 10000).roundToDouble();
 
-    if (autoSeleccionado.value == null) return false;
+    if (autoSeleccionado.value == null) {
+      print("Error: Auto no seleccionado");
+      return false;
+    }
 
     final nuevaReserva = Reserva(
       codigoReserva: "RES-${DateTime.now().millisecondsSinceEpoch}",
@@ -85,13 +106,21 @@ class ReservaAlumnoController extends GetxController {
       monto: montoCalculado,
       estadoReserva: "PENDIENTE",
       chapaAuto: autoSeleccionado.value!.chapa,
+      marcaAuto: autoSeleccionado.value!.marca,
     );
-
+    print("Reserva: ${nuevaReserva.toJson()}");
     try {
+      print("Guardando nueva reserva: ${nuevaReserva.toJson()}");
+      
       // Guardar la reserva
       final reservas = await db.getAll("reservas.json");
+      print("Reservas actuales: $reservas");
+      
       reservas.add(nuevaReserva.toJson());
+      print("Agregando nueva reserva a la lista");
+      
       await db.saveAll("reservas.json", reservas);
+      print("Reserva guardada exitosamente");
 
       // Marcar el lugar como reservado
       final lugares = await db.getAll("lugares.json");
@@ -101,6 +130,7 @@ class ReservaAlumnoController extends GetxController {
       if (index != -1) {
         lugares[index]['estado'] = "RESERVADO";
         await db.saveAll("lugares.json", lugares);
+        print("Lugar marcado como reservado");
       }
 
       return true;
