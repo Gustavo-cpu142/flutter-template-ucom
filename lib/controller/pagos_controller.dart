@@ -80,7 +80,7 @@ class PagosController extends GetxController {
     }
   }
 
-  Future<void> procesarPago(String codigoReserva) async {
+  Future<bool> procesarPago(String codigoReserva) async {
     try {
       isLoading.value = true;
       
@@ -132,12 +132,17 @@ class PagosController extends GetxController {
       // Forzar actualización de la UI
       homeController.update();
 
+      // Recargar las reservas pendientes
+      await cargarReservasPendientes();
+
       Get.snackbar(
         'Éxito',
         'Pago procesado correctamente',
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+      
+      return true;
     } catch (e) {
       print('Error al procesar pago: $e');
       Get.snackbar(
@@ -146,6 +151,7 @@ class PagosController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+      return false;
     } finally {
       isLoading.value = false;
     }
@@ -164,62 +170,26 @@ class PagosController extends GetxController {
         (r) => r['codigoReserva'] == reserva.codigoReserva
       );
 
-      if (reservaIndex != -1) {
-        print("Reserva encontrada en el índice: $reservaIndex");
-        // Actualizar estado de la reserva a CANCELADA
-        reservasList[reservaIndex]['estadoReserva'] = 'CANCELADA';
-        await _dataService.escribirArchivoJson('reservas.json', json.encode(reservasList));
-        print("Estado de reserva actualizado a CANCELADA");
-
-        // Liberar el lugar de estacionamiento
-        final lugaresJson = await _dataService.leerArchivoJson('lugares.json');
-        final List<dynamic> lugaresList = json.decode(lugaresJson);
-        
-        // Buscar y actualizar el lugar asociado a esta reserva
-        final lugarIndex = lugaresList.indexWhere(
-          (l) => l['codigoReserva'] == reserva.codigoReserva
-        );
-
-        if (lugarIndex != -1) {
-          print("Lugar encontrado en el índice: $lugarIndex");
-          lugaresList[lugarIndex]['estado'] = 'DISPONIBLE';
-          lugaresList[lugarIndex]['codigoReserva'] = null;
-          await _dataService.escribirArchivoJson('lugares.json', json.encode(lugaresList));
-          print("Lugar liberado correctamente");
-        } else {
-          print("No se encontró el lugar asociado a la reserva");
-        }
-      } else {
-        print("No se encontró la reserva para cancelar");
+      if (reservaIndex == -1) {
+        print("Reserva no encontrada");
+        return false;
       }
 
-      // Actualizar estadísticas
+      // Actualizar el estado de la reserva a CANCELADA
+      reservasList[reservaIndex]['estadoReserva'] = 'CANCELADA';
+      await _dataService.escribirArchivoJson('reservas.json', json.encode(reservasList));
+
+      // Obtener el HomeController y actualizar contadores
       final homeController = Get.find<HomeController>();
-      await homeController.actualizarEstadisticas();
-      print("Estadísticas actualizadas después de la cancelación");
-
-      // Recargar reservas pendientes
+      homeController.pagosPendientes.value = homeController.pagosPendientes.value - 1;
+      
+      // Recargar las reservas pendientes
       await cargarReservasPendientes();
-      print("Cancelación completada exitosamente");
 
-      Get.snackbar(
-        "Éxito",
-        "Reserva cancelada y lugar liberado correctamente",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.shade100,
-        colorText: Colors.green.shade900,
-      );
-
+      print("Reserva cancelada exitosamente");
       return true;
     } catch (e) {
       print("Error al cancelar reserva: $e");
-      Get.snackbar(
-        "Error",
-        "Ocurrió un error al cancelar la reserva",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: Colors.red.shade900,
-      );
       return false;
     } finally {
       isLoading.value = false;

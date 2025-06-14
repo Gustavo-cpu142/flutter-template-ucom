@@ -86,6 +86,7 @@ class PagosScreen extends StatelessWidget {
                                     backgroundColor: Colors.green,
                                   ),
                                 );
+                                await controller.cargarReservasPendientes();
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -105,7 +106,7 @@ class PagosScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              final success = await controller.procesarPago(reserva);
+                              final success = await controller.procesarPago(reserva.codigoReserva);
                               if (success && context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -113,6 +114,7 @@ class PagosScreen extends StatelessWidget {
                                     backgroundColor: Colors.green,
                                   ),
                                 );
+                                await controller.cargarReservasPendientes();
                               }
                             },
                             style: ElevatedButton.styleFrom(
